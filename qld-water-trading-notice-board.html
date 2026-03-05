@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Water Trading Notice Board – Queensland Government</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700;1,900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --qld-blue: #005EB8;
+      --qld-blue-dark: #004a93;
+      --qld-blue-light: #e8f1fb;
+      --qld-blue-mid: #cce0f5;
+      --white: #ffffff;
+      --grey-light: #f4f4f4;
+      --grey-mid: #e0e0e0;
+      --grey-dark: #666;
+      --text: #1a1a1a;
+      --header-h: 76px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Noto Sans', sans-serif; font-size: 15px; color: var(--text); background: var(--grey-light); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* HEADER */
+    .site-header { background: var(--white); border-bottom: 3px solid var(--qld-blue); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,94,184,.10); }
+    .header-inner { max-width: 1200px; margin: 0 auto; height: var(--header-h); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+
+    .wordmark { display: flex; flex-direction: column; line-height: 1; text-decoration: none; user-select: none; }
+    .wordmark .delivering { font-size: 26px; font-weight: 900; font-style: italic; color: var(--qld-blue); letter-spacing: -.5px; }
+    .wordmark .for-qld { font-size: 13px; font-weight: 700; color: var(--qld-blue); letter-spacing: 1.8px; text-transform: uppercase; }
+
+
+
+    /* BANNER */
+    .page-banner { background: var(--qld-blue); padding: 34px 32px 30px; }
+    .banner-inner { max-width: 1200px; margin: 0 auto; }
+    .banner-inner h1 { font-size: 30px; font-weight: 900; color: var(--white); margin-bottom: 6px; }
+    .banner-inner p { color: rgba(255,255,255,.85); font-size: 15px; }
+
+    /* BREADCRUMB */
+    .breadcrumb { background: var(--white); border-bottom: 1px solid var(--grey-mid); padding: 10px 32px; font-size: 13px; color: var(--grey-dark); }
+    .breadcrumb a { color: var(--qld-blue); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb span { margin: 0 6px; }
+
+    /* MAIN */
+    main { max-width: 1200px; margin: 32px auto; padding: 0 32px; flex: 1; width: 100%; }
+
+    /* CARD */
+    .card { background: var(--white); border-radius: 4px; border: 1px solid var(--grey-mid); padding: 28px 32px; margin-bottom: 28px; }
+    .card h2 { font-size: 20px; font-weight: 700; color: var(--qld-blue-dark); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--qld-blue-mid); }
+
+    /* BUTTONS */
+    .btn-primary { display: inline-block; background: var(--qld-blue); color: var(--white); font-family: 'Noto Sans', sans-serif; font-size: 15px; font-weight: 700; padding: 12px 28px; border-radius: 3px; text-decoration: none; border: none; cursor: pointer; transition: background .15s; }
+    .btn-primary:hover { background: var(--qld-blue-dark); }
+    .btn-secondary { font-family: 'Noto Sans', sans-serif; font-size: 15px; font-weight: 700; color: var(--qld-blue); background: var(--white); border: 2px solid var(--qld-blue); border-radius: 3px; padding: 10px 24px; cursor: pointer; transition: background .12s, color .12s; }
+    .btn-secondary:hover { background: var(--qld-blue-light); }
+
+    /* FILTERS */
+    .filters { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .filter-group label { font-size: 12px; font-weight: 700; color: var(--grey-dark); text-transform: uppercase; letter-spacing: .5px; }
+    .filter-group select { font-family: 'Noto Sans', sans-serif; font-size: 14px; border: 1px solid var(--grey-mid); border-radius: 3px; padding: 8px 10px; color: var(--text); background: var(--white); cursor: pointer; }
+    .filter-group select:focus { outline: 2px solid var(--qld-blue); outline-offset: 1px; }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    thead tr { background: var(--qld-blue); color: var(--white); }
+    thead th { text-align: left; padding: 12px 14px; font-weight: 700; font-size: 13px; letter-spacing: .3px; white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid var(--grey-mid); }
+    tbody tr.data-row:hover { background: var(--qld-blue-light); }
+    tbody td { padding: 12px 14px; vertical-align: middle; }
+
+    .tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .tag-buy-perm  { background: #dbeafe; color: #1e40af; }
+    .tag-buy-temp  { background: #e0f2fe; color: #0369a1; }
+    .tag-sell-perm { background: #d1fae5; color: #065f46; }
+    .tag-sell-temp { background: #ecfccb; color: #3f6212; }
+    .tag-both      { background: #fef9c3; color: #854d0e; }
+
+    .btn-info { font-family: 'Noto Sans', sans-serif; font-size: 13px; font-weight: 700; color: var(--qld-blue); background: none; border: 1px solid var(--qld-blue); border-radius: 3px; padding: 5px 12px; cursor: pointer; transition: background .12s, color .12s; white-space: nowrap; }
+    .btn-info:hover, .btn-info.active { background: var(--qld-blue); color: var(--white); }
+
+    /* DETAIL ROW */
+    .detail-row td { background: var(--qld-blue-light); padding: 0; border-left: 4px solid var(--qld-blue); }
+    .detail-inner { padding: 18px 20px; display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; }
+    .detail-desc { font-size: 13px; color: #333; margin-bottom: 10px; line-height: 1.6; }
+    .detail-meta { font-size: 13px; color: #555; }
+
+    .contact-card { background: var(--white); border: 1px solid var(--qld-blue-mid); border-radius: 4px; padding: 16px 20px; min-width: 260px; box-shadow: 0 1px 4px rgba(0,94,184,.08); }
+    .contact-card h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--qld-blue); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--qld-blue-mid); }
+    .contact-card .c-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .contact-card .c-row { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #444; margin-bottom: 6px; }
+    .contact-card .c-row a { color: var(--qld-blue); text-decoration: none; font-weight: 600; }
+    .contact-card .c-row a:hover { text-decoration: underline; }
+    .contact-card .c-icon { font-size: 15px; width: 20px; text-align: center; }
+    .contact-card .c-note { font-size: 11px; color: var(--grey-dark); margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--grey-mid); line-height: 1.5; }
+
+    .hidden { display: none; }
+    .no-results { text-align: center; padding: 40px; color: var(--grey-dark); font-style: italic; }
+
+    /* INFO BOX */
+    .info-box { background: var(--qld-blue-light); border-left: 4px solid var(--qld-blue); border-radius: 0 4px 4px 0; padding: 16px 20px; font-size: 14px; color: #1a3a5c; margin-bottom: 20px; line-height: 1.6; }
+    .info-box strong { display: block; margin-bottom: 4px; font-size: 15px; }
+
+    /* TERMS */
+    .terms-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; font-size: 15px; color: var(--qld-blue); border: none; background: none; font-family: 'Noto Sans', sans-serif; padding: 0; }
+    .terms-toggle svg { transition: transform .2s; }
+    .terms-toggle.open svg { transform: rotate(180deg); }
+    .terms-body { margin-top: 16px; font-size: 13px; line-height: 1.7; color: #444; display: none; }
+    .terms-body p { margin-bottom: 12px; }
+    .terms-body h3 { font-size: 13px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+
+    /* SUCCESS */
+    .success-banner { display: none; background: #d1fae5; border: 1px solid #6ee7b7; color: #065f46; border-radius: 4px; padding: 14px 18px; margin-bottom: 20px; font-size: 14px; font-weight: 600; }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 6px; max-width: 580px; width: 100%; padding: 36px; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,.25); max-height: 90vh; overflow-y: auto; }
+    .modal h2 { font-size: 22px; font-weight: 700; color: var(--qld-blue-dark); margin-bottom: 20px; }
+    .modal .close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; cursor: pointer; font-size: 22px; color: var(--grey-dark); line-height: 1; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { font-size: 13px; font-weight: 700; color: #333; }
+    .form-group input, .form-group select, .form-group textarea { font-family: 'Noto Sans', sans-serif; font-size: 14px; border: 1px solid var(--grey-mid); border-radius: 3px; padding: 9px 11px; color: var(--text); }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: 2px solid var(--qld-blue); outline-offset: 1px; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-actions { display: flex; gap: 12px; margin-top: 20px; justify-content: flex-end; }
+
+    /* FOOTER */
+    footer { background: var(--qld-blue-dark); color: rgba(255,255,255,.85); padding: 36px 32px 24px; margin-top: auto; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,.2); }
+    footer h3 { font-size: 13px; font-weight: 700; color: var(--white); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+    footer p, footer a { font-size: 13px; color: rgba(255,255,255,.8); line-height: 1.9; text-decoration: none; display: block; }
+    footer a:hover { color: var(--white); text-decoration: underline; }
+    .footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 18px; font-size: 12px; color: rgba(255,255,255,.55); display: flex; justify-content: space-between; align-items: center; }
+    .footer-wordmark { display: flex; flex-direction: column; line-height: 1.1; }
+    .footer-wordmark .d { font-size: 16px; font-weight: 900; font-style: italic; color: var(--white); }
+    .footer-wordmark .fq { font-size: 9px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,.8); }
+
+    @media (max-width: 768px) {
+      .header-inner { padding: 0 16px; }
+      .qld-gov-logo__text .dept { display: none; }
+      main { padding: 0 16px; }
+      .filters { grid-template-columns: 1fr 1fr; }
+      .footer-inner { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+      .form-row { grid-template-columns: 1fr; }
+      .detail-inner { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <a class="wordmark" href="#">
+      <span class="delivering">DELIVERING</span>
+      <span class="for-qld">FOR QUEENSLAND</span>
+    </a>
+
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<nav class="breadcrumb">
+  <div style="max-width:1200px;margin:0 auto;">
+    <a href="https://www.qld.gov.au">Home</a><span>›</span>
+    <a href="https://www.dlgwv.qld.gov.au/water">Water</a><span>›</span>
+    <a href="#">Buy, trade and lease water</a><span>›</span>
+    Water Trading Notice Board
+  </div>
+</nav>
+
+<!-- BANNER -->
+<div class="page-banner">
+  <div class="banner-inner">
+    <h1>Water Trading Notice Board</h1>
+    <p>Buy, sell or lease water allocations and entitlements across Queensland's 23 water plan areas.</p>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <div id="success-banner" class="success-banner">✓ Your listing has been submitted and is pending review. You will be contacted by the Department within 2 business days.</div>
+
+  <div class="card">
+    <h2>Submit a New Listing</h2>
+    <div class="info-box">
+      <strong>How it works</strong>
+      This free service helps Queensland water entitlement and allocation holders connect with potential buyers and sellers. Listings are reviewed before publication. When a user expands a listing, the contact details of the listing holder are displayed so they can reach out directly. All trades must be approved by the Department of Local Government, Water and Volunteers and recorded in the water allocations register. Seek independent legal and financial advice before trading.
+    </div>
+    <button class="btn-primary" onclick="document.getElementById('post-modal').classList.add('open')">+ Create New Listing</button>
+  </div>
+
+  <div class="card">
+    <h2>Current Listings</h2>
+    <div class="filters">
+      <div class="filter-group">
+        <label>Activity Type</label>
+        <select id="filter-type" onchange="applyFilters()">
+          <option value="">All types</option>
+          <option>Buy Temporary</option>
+          <option>Buy Permanent</option>
+          <option>Buy Temporary / Permanent</option>
+          <option>Sell Temporary</option>
+          <option>Sell Permanent</option>
+          <option>Sell Temporary / Permanent</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Water Plan Area</label>
+        <select id="filter-scheme" onchange="applyFilters()">
+          <option value="">All 23 plan areas</option>
+          <option>Baffle Creek Basin</option>
+          <option>Barron</option>
+          <option>Border Rivers and Moonie</option>
+          <option>Boyne River Basin</option>
+          <option>Burdekin Basin</option>
+          <option>Burnett Basin</option>
+          <option>Calliope River</option>
+          <option>Cape York</option>
+          <option>Condamine and Balonne</option>
+          <option>Cooper Creek</option>
+          <option>Fitzroy Basin</option>
+          <option>Georgina and Diamantina</option>
+          <option>Gold Coast</option>
+          <option>Great Artesian Basin and other regional aquifers</option>
+          <option>Gulf</option>
+          <option>Logan Basin</option>
+          <option>Mary Basin</option>
+          <option>Mitchell</option>
+          <option>Moreton</option>
+          <option>Pioneer Valley</option>
+          <option>Warrego, Paroo, Bulloo and Nebine</option>
+          <option>Wet Tropics</option>
+          <option>Whitsunday</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Zone / Area</label>
+        <select id="filter-zone" onchange="applyFilters()">
+          <option value="">All zones</option>
+          <option>Zone A</option><option>Zone B</option><option>Zone C</option>
+          <option>Zone D</option><option>Zone E</option><option>N/A</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Listing Date</th>
+            <th>Activity Type</th>
+            <th>Volume</th>
+            <th>Flow Rate</th>
+            <th>Water Plan Area</th>
+            <th>Zone</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="listings-body"></tbody>
+      </table>
+      <p id="no-results" class="no-results hidden">No listings match your selected filters.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <button class="terms-toggle" id="terms-btn" onclick="toggleTerms()" aria-expanded="false">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 7l5 5 5-5" stroke="#005EB8" stroke-width="2" stroke-linecap="round"/></svg>
+      Terms and Conditions
+    </button>
+    <div class="terms-body" id="terms-body">
+      <h3>Relationship with the Queensland Government</h3>
+      <p>The Notice Board is a free service provided by the Department of Local Government, Water and Volunteers to help match buyers and sellers of water entitlements and allocations. The Queensland Government is not a party to any trade and does not endorse or recommend any listing.</p>
+      <h3>Contact Information</h3>
+      <p>By posting a listing, you consent to your name, phone number and email address being displayed publicly when a user expands your listing. You agree to immediately notify the Department if your details change or your listing is no longer current, so it can be updated or removed.</p>
+      <h3>Accuracy</h3>
+      <p>You must provide full and accurate information. The Queensland Government does not warrant the accuracy or currency of listings. Users rely on information at their own risk and should conduct their own due diligence.</p>
+      <h3>Water Trading Rules</h3>
+      <p>Trading is governed by the Water Act 2000 (Qld) and applicable water plan trading rules. All transfers must be approved by the Department and recorded in the water allocations register. Seek independent legal, financial and tax advice before entering into any trade.</p>
+      <h3>Privacy</h3>
+      <p>Personal information is managed in accordance with the Information Privacy Act 2009 (Qld). Contact: WaterHub@dlgwv.qld.gov.au.</p>
+      <h3>Liability</h3>
+      <p>To the extent permitted by law, the Queensland Government is not liable for any loss arising from use of the Notice Board.</p>
+    </div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <h3>Contact Us</h3>
+      <p>Phone: 13 QGOV (13 74 68)</p>
+      <p>Email: WaterHub@dlgwv.qld.gov.au</p>
+      <a href="https://www.dlgwv.qld.gov.au/water" target="_blank" rel="noopener">dlgwv.qld.gov.au/water</a>
+      <a href="https://www.dlgwv.qld.gov.au/about-us/contact" target="_blank" rel="noopener">Find your local water office ›</a>
+    </div>
+    <div>
+      <h3>Quick Links</h3>
+      <a href="https://www.dlgwv.qld.gov.au/water/licences-and-entitlements/water-trading" target="_blank" rel="noopener">Buy, Trade and Lease Water</a>
+      <a href="https://www.business.qld.gov.au/industries/mining-energy-water/water/catchments-planning/water-plan-areas" target="_blank" rel="noopener">Water Plan Areas</a>
+      <a href="https://www.dlgwv.qld.gov.au/water/licences-and-entitlements" target="_blank" rel="noopener">Licences &amp; Entitlements</a>
+      <a href="https://water-monitoring.information.qld.gov.au/" target="_blank" rel="noopener">Water Monitoring Portal</a>
+    </div>
+    <div>
+      <h3>Related Services</h3>
+      <a href="https://www.qld.gov.au/environment/water" target="_blank" rel="noopener">Water Use &amp; Monitoring</a>
+      <a href="https://qldglobe.information.qld.gov.au/qldglobe/public/water-plan-areas-0" target="_blank" rel="noopener">Queensland Globe – Water Maps</a>
+      <a href="https://www.qld.gov.au/legal/privacy" target="_blank" rel="noopener">Privacy</a>
+      <a href="https://www.qld.gov.au/right-to-information" target="_blank" rel="noopener">Right to Information</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© State of Queensland (Dept. of Local Government, Water and Volunteers) 2025. Licensed under CC BY 4.0.</span>
+    <div class="footer-wordmark"><span class="d">DELIVERING</span><span class="fq">FOR QUEENSLAND</span></div>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="post-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <button class="close-btn" onclick="document.getElementById('post-modal').classList.remove('open')" aria-label="Close">×</button>
+    <h2 id="modal-title">Create New Listing</h2>
+    <div class="form-row">
+      <div class="form-group"><label for="f-name">Full Name *</label><input id="f-name" type="text" placeholder="e.g. Jane Smith"/></div>
+      <div class="form-group"><label for="f-phone">Phone Number *</label><input id="f-phone" type="tel" placeholder="e.g. 0400 000 000"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group full"><label for="f-email">Email Address *</label><input id="f-email" type="email" placeholder="e.g. jane.smith@example.com"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label for="f-type">Activity Type *</label>
+        <select id="f-type"><option value="">Select…</option><option>Buy Temporary</option><option>Buy Permanent</option><option>Buy Temporary / Permanent</option><option>Sell Temporary</option><option>Sell Permanent</option><option>Sell Temporary / Permanent</option></select>
+      </div>
+      <div class="form-group"><label for="f-volume">Volume (ML) *</label><input id="f-volume" type="number" placeholder="e.g. 50" min="0"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label for="f-scheme">Water Plan Area *</label>
+        <select id="f-scheme"><option value="">Select…</option>
+          <option>Baffle Creek Basin</option><option>Barron</option><option>Border Rivers and Moonie</option>
+          <option>Boyne River Basin</option><option>Burdekin Basin</option><option>Burnett Basin</option>
+          <option>Calliope River</option><option>Cape York</option><option>Condamine and Balonne</option>
+          <option>Cooper Creek</option><option>Fitzroy Basin</option><option>Georgina and Diamantina</option>
+          <option>Gold Coast</option><option>Great Artesian Basin and other regional aquifers</option>
+          <option>Gulf</option><option>Logan Basin</option><option>Mary Basin</option>
+          <option>Mitchell</option><option>Moreton</option><option>Pioneer Valley</option>
+          <option>Warrego, Paroo, Bulloo and Nebine</option><option>Wet Tropics</option><option>Whitsunday</option>
+        </select>
+      </div>
+      <div class="form-group"><label for="f-zone">Zone / Area</label>
+        <select id="f-zone"><option value="N/A">N/A</option><option>Zone A</option><option>Zone B</option><option>Zone C</option><option>Zone D</option><option>Zone E</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group full"><label for="f-flow">Flow Rate (optional)</label><input id="f-flow" type="text" placeholder="e.g. 0.5 ML/day or N/A"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group full"><label for="f-desc">Description (optional)</label><textarea id="f-desc" placeholder="Additional details about your listing…"></textarea></div>
+    </div>
+    <p style="font-size:12px;color:#888;margin-top:4px;">* Required. Your name, phone &amp; email will be publicly visible when users expand your listing. Subject to departmental approval.</p>
+    <div class="form-actions">
+      <button class="btn-secondary" onclick="document.getElementById('post-modal').classList.remove('open')">Cancel</button>
+      <button class="btn-primary" onclick="submitPost()">Submit Listing</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const listings = [
+  { date:"03/03/2026", type:"Buy Permanent",            volume:"100 ML", flow:"1.0 ML/day",   scheme:"Burdekin Basin",                              zone:"Zone B", name:"James Hartley",             phone:"0412 345 678", email:"james.hartley@example.com",    desc:"Looking to purchase permanent water allocation for expanded sugarcane operation. Open to negotiation on volume." },
+  { date:"25/02/2026", type:"Sell Temporary",           volume:"50 ML",  flow:"0.5 ML/day",   scheme:"Barron",                                      zone:"Zone A", name:"Sarah Nguyen",              phone:"0423 456 789", email:"sarah.nguyen@example.com",     desc:"Temporary allocation available this season only – part or all negotiable." },
+  { date:"20/02/2026", type:"Sell Permanent",           volume:"200 ML", flow:"N/A",           scheme:"Condamine and Balonne",                       zone:"Zone C", name:"McAlister Pastoral Co.",    phone:"0407 222 333", email:"admin@mcalisterpastoral.com.au", desc:"Full entitlement of 200 ML for permanent sale. Currently used for grain cropping." },
+  { date:"14/02/2026", type:"Buy Temporary / Permanent",volume:"75 ML",  flow:"N/A",           scheme:"Burnett Basin",                               zone:"N/A",    name:"Peter Walsh",               phone:"0498 111 222", email:"peter.walsh@example.com",      desc:"Macadamia and citrus grower seeking 75 ML. Temporary preferred this season, open to permanent or lease." },
+  { date:"07/02/2026", type:"Sell Temporary / Permanent",volume:"300 ML",flow:"2.5 ML/day",   scheme:"Border Rivers and Moonie",                    zone:"Zone D", name:"Darling Downs Growers P/L", phone:"0400 777 888", email:"water@ddgrowers.com.au",       desc:"Up to 300 ML available. Prefer long-term lease but open to outright sale. Located on the Macintyre River." },
+  { date:"22/01/2026", type:"Buy Permanent",            volume:"40 ML",  flow:"N/A",           scheme:"Fitzroy Basin",                               zone:"Zone A", name:"Rebecca O'Brien",           phone:"0455 321 654", email:"rebecca.obrien@example.com",   desc:"" },
+  { date:"15/01/2026", type:"Sell Temporary",           volume:"20 ML",  flow:"0.2 ML/day",    scheme:"Mary Basin",                                  zone:"Zone B", name:"Tim Sørensen",              phone:"0411 888 999", email:"tim.sorensen@example.com",     desc:"20 ML available as seasonal assignment for this irrigation season only." },
+  { date:"09/01/2026", type:"Sell Permanent",           volume:"150 ML", flow:"1.25 ML/day",   scheme:"Moreton",                                     zone:"Zone E", name:"Sunrise Ag Pty Ltd",        phone:"0466 543 210", email:"info@sunriseag.com.au",        desc:"Full entitlement for permanent sale at market value. Currently under-utilised." },
+  { date:"02/01/2026", type:"Buy Temporary",            volume:"30 ML",  flow:"N/A",           scheme:"Pioneer Valley",                              zone:"Zone A", name:"Karen McLaughlin",          phone:"0421 654 321", email:"karen.mclaughlin@example.com", desc:"Seeking temporary water for this season for sugarcane crop. Willing to pay market rate." },
+  { date:"18/12/2025", type:"Sell Permanent",           volume:"80 ML",  flow:"0.67 ML/day",   scheme:"Logan Basin",                                 zone:"Zone C", name:"Scenic Rim Growers",        phone:"0432 111 444", email:"water@scenicrimgrowers.com.au", desc:"Permanent sale of 80 ML allocation. Urgently seeking buyer." },
+  { date:"04/12/2025", type:"Buy Temporary / Permanent",volume:"120 ML", flow:"N/A",           scheme:"Wet Tropics",                                 zone:"N/A",    name:"Far North Farming Co.",     phone:"0444 222 555", email:"fnf@example.com",             desc:"Banana and tropical fruit grower seeking 100–120 ML. Temporary preferred, interested in permanent." },
+  { date:"25/11/2025", type:"Sell Temporary",           volume:"60 ML",  flow:"0.5 ML/day",    scheme:"Whitsunday",                                  zone:"Zone B", name:"Colin Jarvis",              phone:"0477 333 666", email:"colin.jarvis@example.com",    desc:"60 ML available as seasonal assignment. Already metered and ready." },
+  { date:"10/11/2025", type:"Sell Permanent",           volume:"250 ML", flow:"2.08 ML/day",   scheme:"Gulf",                                        zone:"Zone A", name:"Gulf Grazing Pty Ltd",      phone:"0455 444 777", email:"admin@gulfgrazing.com.au",    desc:"250 ML relocatable water licence for permanent sale in Flinders River water management area." },
+  { date:"01/10/2025", type:"Buy Permanent",            volume:"500 ML", flow:"N/A",           scheme:"Great Artesian Basin and other regional aquifers", zone:"N/A", name:"Outback Station Holdings", phone:"0488 555 888", email:"water@outbackstations.com.au", desc:"Seeking to purchase groundwater allocation in the GAB plan area to formalise existing usage." },
+  { date:"15/09/2025", type:"Sell Temporary / Permanent",volume:"45 ML", flow:"0.38 ML/day",  scheme:"Boyne River Basin",                           zone:"Zone C", name:"Gladstone Area Irrigators", phone:"0411 222 999", email:"gai@example.com",             desc:"45 ML available as seasonal assignment or permanent transfer." },
+  { date:"20/08/2025", type:"Buy Temporary",            volume:"15 ML",  flow:"N/A",           scheme:"Baffle Creek Basin",                          zone:"N/A",    name:"Miriam Costa",              phone:"0402 888 111", email:"miriam.costa@example.com",    desc:"Macadamia grower seeking 10–15 ML temporary allocation for current season." },
+  { date:"05/08/2025", type:"Sell Permanent",           volume:"90 ML",  flow:"0.75 ML/day",   scheme:"Mitchell",                                    zone:"Zone B", name:"Savannah Pastoral Co.",     phone:"0433 777 000", email:"admin@savannahpastoral.com.au", desc:"Full permanent allocation for sale. Property partly retiring from irrigation." },
+  { date:"14/07/2025", type:"Buy Temporary / Permanent",volume:"35 ML",  flow:"N/A",           scheme:"Cape York",                                   zone:"N/A",    name:"Hopevale Community Co-op",  phone:"0461 000 123", email:"water@hopevalecoop.com.au",   desc:"Community food security project seeking water allocation in the Cape York plan area." },
+  { date:"30/06/2025", type:"Sell Temporary",           volume:"70 ML",  flow:"0.58 ML/day",   scheme:"Calliope River",                              zone:"Zone A", name:"Boyne Valley Horticulture", phone:"0422 456 000", email:"bvh@example.com",             desc:"70 ML seasonal assignment available. Contact for pricing." },
+  { date:"10/06/2025", type:"Sell Permanent",           volume:"180 ML", flow:"1.5 ML/day",    scheme:"Cooper Creek",                                zone:"N/A",    name:"Longreach Ag Enterprises",  phone:"0477 123 456", email:"info@longreachag.com.au",     desc:"Selling full Cooper Creek allocation due to property restructure." },
+  { date:"25/05/2025", type:"Buy Permanent",            volume:"60 ML",  flow:"N/A",           scheme:"Georgina and Diamantina",                     zone:"N/A",    name:"Channel Country Cattle Co.",phone:"0400 321 789", email:"water@channelcountry.com.au", desc:"Looking to formalise groundwater rights through purchase of permanent allocation." },
+  { date:"12/05/2025", type:"Sell Temporary / Permanent",volume:"110 ML",flow:"0.92 ML/day",  scheme:"Gold Coast",                                  zone:"Zone D", name:"Numinbah Valley Farms",     phone:"0455 678 901", email:"farms@numinbah.com.au",       desc:"Open to seasonal or permanent transfer. Property transitioning to conservation use." },
+  { date:"01/04/2025", type:"Buy Temporary",            volume:"25 ML",  flow:"N/A",           scheme:"Warrego, Paroo, Bulloo and Nebine",           zone:"N/A",    name:"Cunnamulla Station Trust",  phone:"0412 000 345", email:"trust@cunnamullastation.com.au", desc:"Seeking temporary allocation for drought-affected stock water this season." }
+];
+
+function tagClass(t) {
+  if (t==="Buy Permanent") return "tag-buy-perm";
+  if (t==="Buy Temporary") return "tag-buy-temp";
+  if (t==="Sell Permanent") return "tag-sell-perm";
+  if (t==="Sell Temporary") return "tag-sell-temp";
+  return "tag-both";
+}
+
+function renderListings(data) {
+  const tbody = document.getElementById("listings-body");
+  const noResults = document.getElementById("no-results");
+  tbody.innerHTML = "";
+  if (!data.length) { noResults.classList.remove("hidden"); return; }
+  noResults.classList.add("hidden");
+  data.forEach((row, i) => {
+    const tr = document.createElement("tr");
+    tr.className = "data-row";
+    tr.innerHTML = `
+      <td style="white-space:nowrap">${row.date}</td>
+      <td><span class="tag ${tagClass(row.type)}">${row.type}</span></td>
+      <td>${row.volume}</td>
+      <td>${row.flow}</td>
+      <td>${row.scheme}</td>
+      <td>${row.zone}</td>
+      <td><button class="btn-info" id="btn-${i}" onclick="toggleDetail(${i})">Contact holder</button></td>
+    `;
+    tbody.appendChild(tr);
+
+    const dtr = document.createElement("tr");
+    dtr.className = "detail-row hidden";
+    dtr.id = `detail-${i}`;
+    dtr.innerHTML = `<td colspan="7">
+      <div class="detail-inner">
+        <div>
+          ${row.desc ? `<div class="detail-desc">${row.desc}</div>` : ""}
+          <p class="detail-meta">Click the contact details below to reach the listing holder directly to discuss terms.</p>
+        </div>
+        <div class="contact-card">
+          <h4>Licence Holder Contact</h4>
+          <div class="c-name">${row.name}</div>
+          <div class="c-row"><span class="c-icon">📞</span><a href="tel:${row.phone.replace(/\s/g,'')}">${row.phone}</a></div>
+          <div class="c-row"><span class="c-icon">✉️</span><a href="mailto:${row.email}">${row.email}</a></div>
+          <p class="c-note">Contact this person directly to discuss terms. All trades must be lodged with the Dept. of Local Government, Water and Volunteers for approval.</p>
+        </div>
+      </div>
+    </td>`;
+    tbody.appendChild(dtr);
+  });
+}
+
+function toggleDetail(i) {
+  const dtr = document.getElementById(`detail-${i}`);
+  const btn = document.getElementById(`btn-${i}`);
+  const isOpen = !dtr.classList.contains("hidden");
+  document.querySelectorAll(".detail-row").forEach(r => r.classList.add("hidden"));
+  document.querySelectorAll(".btn-info").forEach(b => { b.classList.remove("active"); b.textContent = "Contact holder"; });
+  if (!isOpen) { dtr.classList.remove("hidden"); btn.classList.add("active"); btn.textContent = "Close ✕"; }
+}
+
+function applyFilters() {
+  const type = document.getElementById("filter-type").value;
+  const scheme = document.getElementById("filter-scheme").value;
+  const zone = document.getElementById("filter-zone").value;
+  renderListings(listings.filter(r => (!type||r.type===type) && (!scheme||r.scheme===scheme) && (!zone||r.zone===zone)));
+}
+
+function toggleTerms() {
+  const btn = document.getElementById("terms-btn");
+  const body = document.getElementById("terms-body");
+  const open = body.style.display === "block";
+  body.style.display = open ? "none" : "block";
+  btn.classList.toggle("open", !open);
+  btn.setAttribute("aria-expanded", String(!open));
+}
+
+function submitPost() {
+  const name = document.getElementById("f-name").value.trim();
+  const phone = document.getElementById("f-phone").value.trim();
+  const email = document.getElementById("f-email").value.trim();
+  const type = document.getElementById("f-type").value;
+  const volume = document.getElementById("f-volume").value;
+  const scheme = document.getElementById("f-scheme").value;
+  if (!name||!phone||!email||!type||!volume||!scheme) { alert("Please fill in all required fields."); return; }
+  document.getElementById("post-modal").classList.remove("open");
+  const banner = document.getElementById("success-banner");
+  banner.style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  setTimeout(() => { banner.style.display = "none"; }, 7000);
+}
+
+document.getElementById("post-modal").addEventListener("click", function(e) { if (e.target===this) this.classList.remove("open"); });
+renderListings(listings);
+</script>
+</body>
+</html>
